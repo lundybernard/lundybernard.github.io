@@ -2,7 +2,7 @@ body{
 /*  font-family: "ff-providence-sans-web-pro-1","ff-providence-sans-web-pro-2",sans-serif;*/
   font-family: 'Yanone Kaffeesatz', Helvetica, arial, serif;
 /*  background: black url("http://farm5.static.flickr.com/4093/4953449631_57e5c365a7_b.jpg") fixed no-repeat center center;*/
-  background: black url("./naxos_background.png") fixed no-repeat center center;
+  background: black url("./background.png") fixed no-repeat center center;
 }
 
 body>header{
