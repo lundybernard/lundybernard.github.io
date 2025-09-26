@@ -2,37 +2,30 @@
 layout: post
 title:  "Adding Descriptors to Pandera's Models"
 date:   2025-09-22 12:00:00 -0700
-categories: python open-source 
+categories: python open-source
 ---
 
-# Adding Descriptors to Pandera's Models
-
-How and why I updated Pandera's [DataFrameModel](lnk)
+How and why I updated Pandera's [DataFrameModel](https://pandera.readthedocs.io/en/latest/dataframe_models.html)
 to use Python's descriptors for data attributes
 
 
-## TLDR:
-Assigning [descriptors]() to class attributes, 
-allows those attributes to behave like [Properties]().
-The values can be computed lazily, only when needed,
-and referenced `.directly` instead of requiring a `.method_call()`
+> **TLDR:** Assigning [descriptors](https://docs.python.org/3/howto/descriptor.html) to class attributes 
+> allows those attributes to behave like [Properties](https://docs.python.org/3/library/functions.html#property).
+> The values can be computed lazily, only when needed,
+> and referenced `.directly` instead of requiring a `.m    tag: '/tags/:name/'ethod_call()`
 
-[skip to the recipe](link to commit on github)
+[skip to the recipe](https://github.com/unionai-oss/pandera/pull/2136/commits/a530024b0c2bf926333413f424f64cadbed3dada)
 
-## Narative
-
-### Reusing Field definitions
+## Reusing Field definitions
 While implementing type-checking for Pandas dataframes using Pandera,
 I wanted to create re-usable Field definitions.
 Repeating the definition of a `date` field in every `DataFrameModel` subclass
 or using inheritance for individual fields felt clunky and was difficult to read.
 
-You can read about the details [in this github issue](https://github.com/unionai-oss/pandera/issues/1680)
-
 It turns out each field in a DataFrameModel definition needs to be a unique instance.
+You can read about the details [in this github issue](https://github.com/unionai-oss/pandera/issues/1680).
 
-
-#### Solution
+### The solution for reusable Fields
 With a little help from Niels Bantilan, the maintainer of Pandera, we came up with this solution
 using partials to define reusable Field definitions
 
@@ -51,8 +44,8 @@ class AlsoGoodModelDF(DataFrameModel):
 ```
 
 
-### Debugging, and suprising behavior
-While debugging the reusable fields errors, I discovered the unexpected
+## Debugging, and surprising behavior
+While debugging the problems with reusable fields, I discovered the unexpected
 behavior that motivated this change.
 
 My first attempt to reuse a Field, resulted in a perplexing error:
@@ -68,40 +61,40 @@ class BadModelDF(DataFrameModel):
 ```
 Calling `BadModelDF.validate(some_dataframe)` raised the exception:
 `SchemaError: column 'field_0' not in DataFrameSchema {'field_1': <Schema Column(name=field_1, type=DataType(float64))>`
-/The root cause of that error is due to the behavior of [DataFrameModel._build_columns_indes](https://github.com/unionai-oss/pandera/blob/ede8a4354cb41a5ef28218f5fbcf7bd64a761cf7/pandera/api/pandas/model.py#L69)
-, but is not relevant to this story./
+*The root cause of that error is due to the behavior of [DataFrameModel._build_columns_index](https://github.com/unionai-oss/pandera/blob/ede8a4354cb41a5ef28218f5fbcf7bd64a761cf7/pandera/api/pandas/model.py#L69)
+, but is not relevant to this story.*
 
 
 Digging into the [DataFrameModel source code](https://github.com/unionai-oss/pandera/blob/ede8a4354cb41a5ef28218f5fbcf7bd64a761cf7/pandera/api/dataframe/model.py#L116)
-I saw that the `.__fields__` attribute should contain the data I'm looking for...
-but when I viewd `BadModelDF.__fields__`, it was an empty dict `{}`!
-And the `.__schema__` value was `None`
+I saw that the `.__fields__` attribute should™ contain the data I'm looking for...
+but when I viewed `BadModelDF.__fields__`, it was an empty dict `{}`!
+And the `.__schema__` value was `None`.
 This was frustrating... I defined a valid DataFrameModel, why would its attributes all be empty, uninitialized?
 
-#### The deeply unsatisfying solution
-The `DataFrameModel` class had a sort of secret `__init__` method,
+### The deeply unsatisfying solution
+The `DataFrameModel` class had a sort of secret `__init__` method.
 You needed to call the [to_schema](https://github.com/unionai-oss/pandera/blob/ede8a4354cb41a5ef28218f5fbcf7bd64a761cf7/pandera/api/dataframe/model.py#L210) 
 method (or any other method which calls it) first,
 because `.to_schema()` populates those data attributes.
 
 
-### the change
-- motivation
-    - spooky action at a distance
+## The change
+
+### Motivation
+
 Being deeply unsatisfied with this "spooky action at a distance", I knew how it should™ work.
+I expect the value of the attributes to always be correct.
 
-    - calculating things we dont use
-We dont want to initialize these values when the class is interpreted,
-because it is computationally expensive,
-and there are cases where we will never use the computed values.
-For example, when we set `PANDERA_VALIDATION_ENABLED=False`
-
-Infact, I dont want to calculate the `__schema__` and all the other data attributes,
+We also don't want to initialize these values when the class is interpreted,
+because it is computationally expensive. 
+There are cases where we will never use the computed values, 
+for example when we set `PANDERA_VALIDATION_ENABLED=False`.
+In fact, I don't want to calculate the `__schema__` and all the other data attributes at all,
 just to read the `__fields__` data.
 
-#### Property-like behavior and classes
+### Property-like behavior and classes
 IMHO: All™ data attributes on an object should behave like attributes, not methods.
-I want to reference a value like `person.age >= 21` not `person.get_current_age() >= 21`
+I want to reference a value like `person.age >= 21` not `person.get_current_age() >= 21`.
 
 Python [Properties](https://docs.python.org/3/library/functions.html#property)
 provide this behavior for computed values on class instances.
@@ -115,16 +108,16 @@ def MyClass:
     def value(self):
         return compute_the_value()
 ```
-something like "when I create an instance of this class, make its `value` attribute a property"
+something like "when I create an instance of this class, make its `value` attribute a property".
 
-Accessing a property of a class, returns the `property` object `<property at 0x###>`,
+Accessing a property of a class returns the `property` object `<property at 0x###>`,
 not a computed value as we may have hoped.
 
 Fortunately, [Descriptors](https://docs.python.org/3/howto/descriptor.html)
 allow us to write class attributes which behave just like properties!
 
-#### The Implementation
-A descriptor is a class, which has a `__get__` method, with the appropriate signature.
+### The Implementation
+A descriptor is a class, which has a `__get__` method with the appropriate signature.
 We can assign an instance of the descriptor to a class attribute,
 and it will behave just like a property, returning the computed value.
 
@@ -143,27 +136,27 @@ Out[3]: 42
 ```
 
 
-#### Changes to the Pandera DataClassModel
+### Changes to the Pandera DataClassModel
 I had several goals for improving the Pandera Model interface:
 - Eliminate the need to call `.to_schema()` to populate data attribues.
 - Data attributes like `__fields__` should™ be idempotent, and always provide valid values.
-- Avoid unnecessary computation, only compute the values we need, when we need them.
+- Avoid unnecessary computation, by only computing the values we need, when we need them.
 
 To accomplish this, 
-I added several Descriptor classes to the `DataClassModel`
-Update the old `get_` and `to_` class methods, and usage in other class methods
+I added several Descriptor classes to the `DataClassModel`,
+updated the old `get_` and `to_` class methods, and updated other class methods
 to access the data attributes directly, while preserving the behavior of the API.
 
 
 It worked! 
 I improved the interface for Pandera's Model class, eliminating a confusing behavior.
 This change to a core component of the package was not disruptive, 
-the full test suite passed without modification.
-We achieved some marginal performance improvements.
+and the full test suite passed without modification.
+We also achieved some marginal performance improvements.
 
 
-You can read the [full commit in the PR](https://github.com/unionai-oss/pandera/pull/2136/commits/a530024b0c2bf926333413f424f64cadbed3dada)
-This is a brief illustration of some of the changes
+You can read the [full commit in the PR](https://github.com/unionai-oss/pandera/pull/2136/commits/a530024b0c2bf926333413f424f64cadbed3dada).
+This is a brief illustration of some of the changes:
 ```Python
 class _ClassDescriptor:
     def __init__(self):
@@ -214,4 +207,5 @@ class DataFrameModel(Generic[TDataFrame, TSchema], BaseModel):
 ```
 
 Thanks for reading,
+
 Lundy
