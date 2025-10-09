@@ -29,7 +29,7 @@ You can read about the details [in this github issue](https://github.com/unionai
 With a little help from Niels Bantilan, the maintainer of Pandera, we came up with this solution
 using partials to define reusable Field definitions
 
-```Python
+```python
 from functools import partial
 from pandera import DataFrameModel, Field
 
@@ -49,7 +49,7 @@ While debugging the problems with reusable fields, I discovered the unexpected
 behavior that motivated this change.
 
 My first attempt to reuse a Field, resulted in a perplexing error:
-```Python
+```python
 NormalizedField: float = Field(ge=0, le=1)
 
 class BadModelDF(DataFrameModel):
@@ -101,7 +101,7 @@ provide this behavior for computed values on class instances.
 
 Sadly, properties do not work on classes, they work on instances of the class.
 The interpreter reads a property definition like this:
-```Python
+```python
 
 def MyClass:
     @property
@@ -121,7 +121,7 @@ A descriptor is a class, which has a `__get__` method with the appropriate signa
 We can assign an instance of the descriptor to a class attribute,
 and it will behave just like a property, returning the computed value.
 
-```Python
+```python
 In [1]: class ValDesc:
    ...:     def __get__(self, obj, objtype=None):
    ...:         return 42
@@ -157,7 +157,7 @@ We also achieved some marginal performance improvements.
 
 You can read the [full commit in the PR](https://github.com/unionai-oss/pandera/pull/2136/commits/a530024b0c2bf926333413f424f64cadbed3dada).
 This is a brief illustration of some of the changes:
-```Python
+```python
 class _ClassDescriptor:
     def __init__(self):
         self.cache = {}
