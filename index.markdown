@@ -4,4 +4,4 @@
 
 layout: home
 ---
-this is the index page for the site
+
