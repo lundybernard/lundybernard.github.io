@@ -2,7 +2,7 @@
 layout: post
 title: "Thoughts on LLMs as accessibility tools"
 date: 2025-03-11 12:00:00 -0700
-categories: AI Accessability
+categories: AI Accessibility
 
 llm: text-generation
 human: review edit
@@ -21,10 +21,10 @@ and reducing the barriers to sharing ideas and participating in conversations.
 
 I have concerns about AI-assisted social media 
 especially that it may be perceived as “lazy”, 
-by people to whome this kind of work comes natually.
+by people to whom this kind of work comes naturally.
 That perception worries me, too. 
-For people who struggle with composing posts, 
-due to any number of challenges, or simply time constraints.
+For people who struggle with composing posts 
+due to any number of challenges, or simply time constraints,
 AI can be a way to engage with their community 
 when they might otherwise remain silent.
 
