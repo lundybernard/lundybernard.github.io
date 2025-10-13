@@ -12,7 +12,7 @@ to use Python's descriptors for data attributes
 > **TLDR:** Assigning [descriptors](https://docs.python.org/3/howto/descriptor.html) to class attributes 
 > allows those attributes to behave like [Properties](https://docs.python.org/3/library/functions.html#property).
 > The values can be computed lazily, only when needed,
-> and referenced `.directly` instead of requiring a `.m    tag: '/tags/:name/'ethod_call()`
+> and referenced `.directly` instead of requiring a `.method_call()`
 
 [skip to the recipe](https://github.com/unionai-oss/pandera/pull/2136/commits/a530024b0c2bf926333413f424f64cadbed3dada)
 
