@@ -30,7 +30,7 @@ theme: minima
 plugins:
   - jekyll-feed
 show_excerpts: true
-copyright: © <!--copyyears--> Lundy Bernard; All rights reserved.
+copyright: "© <!--copyyears--> Lundy Bernard; Content: CC BY-ND 4.0 (translations permitted with attribution)."
 
 # Exclude from processing.
 # The following items will not be processed, by default.
