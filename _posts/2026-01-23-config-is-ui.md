@@ -8,17 +8,35 @@ Configuration management is part of your User Interface.
 
 Whether you are creating an application for users, a library for devs, 
 or a microservice, how your software handles configuration 
-is a critical concern and needs to cater to your users' needs.
-
+is a critical concern and needs to cater to your users' needs. 
+Approaching configuration management *as* a part of the user interface 
+will lead to better, user-friendly design decisions.
 
 ## What is Configuration?
-Configuration in this context is specifically user-controllable settings which
-are used to change the behavior of the software at runtime. 
-This includes things like logging levels, feature flags, 
-user preferences like dark/light mode. 
-It excludes things like plugins, user-defined business logic/rules, and data
-which the software will process.
-`llm_model="gpt-oss"` is a config setting, the model file itself is not.
+Configuration is part of a broader category of user-changeable inputs to software.
+
+Configuration is user-controllable settings which change the 
+behavior of the software at runtime. This includes things like logging levels, 
+feature flags, and user preferences like dark/light mode. Configuration is provided 
+either directly by the user (for example, CLI arguments) or from stored values, such as 
+environment variables or config files. 
+
+Other kinds of user inputs are beyond the scope of configuration, such as plugins, 
+data which the software will process, and complex user-defined logic like workflows, 
+schemas, kubernetes manifests, or logstash pipelines.
+
+- `llm_model="gpt-oss"` is a config setting, the model file itself is not.
+- Toggles for debug logging are a separate concern from data-processing rules which require their own DSL.
+
+## UI Characteristics of Configuration
+There is no hard and fast rule to distinguish configuration from other kinds of inputs.
+What starts as a simple configuration can quickly grow into large complex
+collections of settings.
+It is helpful to keep GUI settings in mind when thinking about what belongs in the 
+scope of configuration - if it is easy to include on a settings page 
+(such as a dark mode toggle), it's probably a good config option.
+Often config options are short and simple enough for a user to type into a CLI, 
+compared to more complex entries that you may want an IDE and syntax highlighting to manage.
 
 
 ## How will your users set configuration options?
@@ -34,31 +52,17 @@ There are many other ways to configure software like:
 Often, but not always, software libraries receive their config settings from
 the code which utilizes them.
 
-It's good to keep GUI settings in mind when thinking about config options,
-if it is easy to include on a settings page, its probably a good config option.
-
-
-## What is not configuration?
-There is no hard and fast rule, which is why it is helpful to think of config
-as part of the UI.
-What starts as a simple configuration can quickly grow into large complex
-collections of settings. 
-Things like workflows, Rulesets, and Schemas, kubernetes manifests, 
-and logstash pipelines are beyond the scope of standard configuration.
-Toggles for debug logging and darkmode are a separate concern 
-from data-processing rules which require their own DSL.
-
 
 ## Practical Advice:
 ### Think of config as part of your UI
-When someone edits your config file, they’re not “tinkering with internals.” 
-They’re using an interface you designed—whether you meant to or not.
-So configuration deserves the same care as any other UI element,
+When someone edits your config file, they’re not “tinkering with internals”. 
+They’re using an interface you designed — whether you meant to or not.
+Since configuration deserves the same care as any other UI element,
 it should:
-* be easy to understand.
-* be hard to misuse.
-* fail with helpful error messages.
-* be stable across versions.
+* be easy to understand
+* be hard to misuse
+* fail with helpful error messages
+* be stable across versions
 The best config UX assumes the user:
 * is tired
 * is in a hurry
@@ -90,7 +94,7 @@ Long lists (more than you want to type out by hand) probably represent Data
 not configuration.
 
 ### Interpolation is business logic (don’t hide logic in config)
-Interpolation and templating in config starts innocent:
+Interpolation and templating in config starts innocently:
 “Let me reuse a base URL”
 “Let me reference DATA_DIR”
 “Let me compute a path”
@@ -104,7 +108,7 @@ If values need to be derived, do the derivation in code where it can be tested.
 ### For complex user logic, use a separate system
 If you require advanced user-defined logic, keep it separate from your runtime
 config.  Build the appropriate testing and documentation around it, and avoid
-conflating simple settings like darkmode and quiet output with programatic logic.
+conflating simple settings like dark mode and quiet output with programmatic logic.
 
 keep the standard config small and boring (good!)
 move complex, user-defined behavior into a separate lane:
