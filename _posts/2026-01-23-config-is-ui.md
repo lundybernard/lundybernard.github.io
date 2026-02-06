@@ -33,11 +33,11 @@ There is no hard and fast rule to distinguish configuration from other kinds of 
 What starts as a simple configuration can quickly grow into large complex
 collections of settings.
 It is helpful to keep GUI settings in mind when thinking about what belongs in the 
-scope of configuration - if it is easy to include on a settings page 
+scope of configuration. If it is easy to include on a settings page 
 (such as a dark mode toggle), it's probably a good config option.
 Often config options are short and simple enough for a user to type into a CLI, 
 compared to more complex entries that you may want an IDE and syntax highlighting to manage.
-
+Consider all of your' users, 
 
 ## How will your users set configuration options?
 That's the critical question because the answer depends on who your users are
@@ -74,7 +74,7 @@ The best config UX assumes the user:
 Configuration values enter the system as strings.
 Your application turns them into the typed values that it needs.
 Don’t make your users debug type mechanics. 
-Own handle parsing and validation in code.
+Handle parsing and validation in code.
 
 This helps you craft helpful error messages like:
 “TIMEOUT must look like 30s, 5m, or 250ms”
@@ -130,7 +130,7 @@ or evolving rule sets, it’s probably not config anymore—it’s data.
 Config is not a substitute database.
 
 
-## Conclusion
+## In Conclusion
 Configuration is part of your user interface,
 treat it like you would any other UI: 
 keep it small, understandable, and hard to misuse.
